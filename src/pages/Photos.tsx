@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import Layout from "../components/Layout";
@@ -23,6 +23,11 @@ const Photos = () => {
     // Fake delay to show feedback if sync is too fast
     setTimeout(() => setIsSyncing(false), 1000);
   };
+
+  // Auto-sync on mount (when user visits this page)
+  useEffect(() => {
+    handleSync();
+  }, []);
 
   // Get unique years from photos
   const years = useMemo(() => {

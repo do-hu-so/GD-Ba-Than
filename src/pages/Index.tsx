@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageIcon, Upload } from "lucide-react";
 import Layout from "../components/Layout";
 import MasonryImage from "../components/MasonryImage";
 import MediaModal from "../components/MediaModal";
-import { MediaItem } from "../services/media";
+import { MediaItem, syncWithCloudinary } from "../services/media";
 import { useMediaList } from "../hooks/useMedia";
 import { useToast } from "@/hooks/use-toast";
 import heroBg from "@/assets/family-hero.jpg";
@@ -18,6 +18,18 @@ const Index = () => {
   const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
   const [heroImage, setHeroImage] = useState(heroBg);
   const [showHeroMenu, setShowHeroMenu] = useState(false);
+
+  // Auto-sync on mount (when user visits Home page)
+  useEffect(() => {
+    console.log("Home page mounted, syncing...");
+    syncWithCloudinary();
+
+    // Check local storage for hero image
+    const storedHero = localStorage.getItem('heroImage');
+    if (storedHero) {
+      setHeroImage(storedHero);
+    }
+  }, []);
 
   // Fetch all media (both photos and videos) from Cloudinary/localStorage
   const { data: allMedia = [] } = useMediaList();
