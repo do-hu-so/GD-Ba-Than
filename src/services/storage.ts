@@ -107,7 +107,7 @@ export const getCloudinaryFiles = async (type?: 'image' | 'video'): Promise<any[
         // Call our own API route which uses the Admin API securely
         // Note: In development with 'vercel dev', this routes to api/cloudinary.js
         // In production, it routes to the serverless function
-        const url = `/api/cloudinary?type=${resourceType}`; // removed &tag=${tag}
+        const url = `/api/cloudinary?type=${resourceType}&_t=${Date.now()}`; // Add cache buster
         console.log(`Fetching from API: ${url}`);
 
         const response = await axios.get(url);

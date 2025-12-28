@@ -350,4 +350,13 @@ export const syncWithCloudinary = async () => {
 };
 
 // Start sync on load
+// Start sync on load
 syncWithCloudinary();
+
+// Auto-sync when tab becomes visible (e.g. switching back from another app)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    console.log('Tab became visible, syncing...');
+    syncWithCloudinary();
+  }
+});
