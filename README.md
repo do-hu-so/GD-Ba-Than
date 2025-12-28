@@ -124,9 +124,7 @@ Xem file `.env.example` để biết các biến cần thiết.
 3. Thêm environment variables trong Vercel dashboard
 4. Deploy!
 
-### Lovable
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share → Publish.
 
 ## 🐛 Troubleshooting
 
