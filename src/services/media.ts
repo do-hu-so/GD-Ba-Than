@@ -123,6 +123,28 @@ export const getMediaByYear = (year: number, type?: 'image' | 'video'): MediaIte
  */
 export const downloadMedia = async (media: MediaItem): Promise<void> => {
   try {
+    // Mobile "Smart Save" for Images: Use Web Share API
+    // This allows "Save to Photos" directly on iOS/Android
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile && media.type === 'image' && navigator.share) {
+      try {
+        const response = await fetch(media.src);
+        const blob = await response.blob();
+        const file = new File([blob], `${media.title || 'image'}.jpg`, { type: blob.type });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: media.title,
+          });
+          return; // Success, stop here
+        }
+      } catch (shareError) {
+        console.warn('Web Share API failed, falling back to download:', shareError);
+        // Continue to fallback download logic
+      }
+    }
+
     // Check if it's a Cloudinary URL
     if (media.src.includes('cloudinary.com')) {
       // Inject fl_attachment flag to force download

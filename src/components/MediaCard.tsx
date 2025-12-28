@@ -99,7 +99,7 @@ const MediaCard = ({ id, type, src, thumbnail, title, year, description, uploade
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className="absolute top-3 right-3 w-10 h-10 rounded-full bg-background/90 hover:bg-background flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg disabled:opacity-50"
+          className="absolute top-3 right-3 w-10 h-10 rounded-full bg-background/90 hover:bg-background flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-lg disabled:opacity-50"
           title="Tải xuống"
         >
           {isDownloading ? (
