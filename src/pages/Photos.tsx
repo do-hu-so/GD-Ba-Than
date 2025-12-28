@@ -1,18 +1,28 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
+import { RefreshCw } from "lucide-react";
 import Layout from "../components/Layout";
 import MediaCard from "../components/MediaCard";
 import MediaModal from "../components/MediaModal";
 import YearFilter from "../components/YearFilter";
 import { useMediaByYear } from "../hooks/useMedia";
-import { MediaItem } from "../services/media";
+import { MediaItem, syncWithCloudinary } from "../services/media";
 
 const Photos = () => {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  // Fetch photos from Pinecone
+  // Fetch photos from local store (via hook)
   const { data: photos = [], isLoading, error } = useMediaByYear(selectedYear, 'image');
+
+  // Handle manual sync
+  const handleSync = async () => {
+    setIsSyncing(true);
+    await syncWithCloudinary();
+    // Fake delay to show feedback if sync is too fast
+    setTimeout(() => setIsSyncing(false), 1000);
+  };
 
   // Get unique years from photos
   const years = useMemo(() => {
@@ -27,14 +37,25 @@ const Photos = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-8 flex items-center justify-between"
           >
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Thư viện <span className="text-gradient">Hình ảnh</span>
-            </h1>
-            <p className="font-body text-muted-foreground max-w-2xl">
-              Những khoảnh khắc đáng nhớ của gia đình qua từng bức ảnh
-            </p>
+            <div>
+              <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
+                Thư viện <span className="text-gradient">Hình ảnh</span>
+              </h1>
+              <p className="font-body text-muted-foreground max-w-2xl">
+                Những khoảnh khắc đáng nhớ của gia đình qua từng bức ảnh
+              </p>
+            </div>
+
+            <button
+              onClick={handleSync}
+              disabled={isSyncing}
+              className="p-3 bg-secondary/10 hover:bg-secondary/20 rounded-full transition-colors"
+              title="Cập nhật hình ảnh mới"
+            >
+              <RefreshCw className={`w-6 h-6 text-foreground ${isSyncing ? 'animate-spin' : ''}`} />
+            </button>
           </motion.div>
 
           <YearFilter
@@ -61,7 +82,7 @@ const Photos = () => {
               className="text-center py-20"
             >
               <p className="font-body text-destructive text-lg">
-                Lỗi khi tải hình ảnh. Vui lòng kiểm tra cấu hình Pinecone.
+                Lỗi khi tải hình ảnh.
               </p>
               <p className="font-body text-muted-foreground text-sm mt-2">
                 {error instanceof Error ? error.message : 'Unknown error'}
@@ -102,6 +123,7 @@ const Photos = () => {
           src={selectedMedia.src}
           title={selectedMedia.title}
           year={selectedMedia.year}
+          id={selectedMedia.id}
         />
       )}
     </Layout>
