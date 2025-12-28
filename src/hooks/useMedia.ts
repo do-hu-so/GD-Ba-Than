@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
     getMediaList,
@@ -14,6 +15,16 @@ import {
  * Hook to fetch all media
  */
 export const useMediaList = (type?: 'image' | 'video') => {
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        const handleUpdate = () => {
+            queryClient.invalidateQueries({ queryKey: ['media'] });
+        };
+        window.addEventListener('media-updated', handleUpdate);
+        return () => window.removeEventListener('media-updated', handleUpdate);
+    }, [queryClient]);
+
     return useQuery({
         queryKey: ['media', type],
         queryFn: () => {

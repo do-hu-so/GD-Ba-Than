@@ -150,6 +150,8 @@ export const deleteMedia = async (media: MediaItem): Promise<void> => {
 const saveToLocalStorage = () => {
   try {
     localStorage.setItem('family_media_store', JSON.stringify(mediaStore));
+    // Notify listeners that media has been updated
+    window.dispatchEvent(new Event('media-updated'));
   } catch (error) {
     console.error('Error saving to localStorage:', error);
   }
@@ -271,10 +273,14 @@ export const syncWithCloudinary = async () => {
         const newItem: MediaItem = {
           id: res.public_id,
           type: res.format === 'mp4' || res.format === 'mov' || res.resource_type === 'video' ? 'video' : 'image',
-          src: getCloudinaryUrl(res.public_id, res.resource_type, res.version),
-          // For videos, try to guess thumbnail (Cloudinary specific)
+          // Ensure video src has extension for better compatibility
+          src: res.resource_type === 'video' && !res.public_id.includes('.')
+            ? `${getCloudinaryUrl(res.public_id, res.resource_type, res.version)}.${res.format || 'mp4'}`
+            : getCloudinaryUrl(res.public_id, res.resource_type, res.version),
+
+          // For videos, force thumbnail to be .jpg
           thumbnail: res.resource_type === 'video'
-            ? getCloudinaryUrl(res.public_id, 'video', res.version).replace(/\.[^/.]+$/, ".jpg")
+            ? getCloudinaryUrl(res.public_id, 'video', res.version).replace(/\.[^/.]+$/, "") + ".jpg"
             : getCloudinaryUrl(res.public_id, 'image', res.version),
           title: title,
           year: year,

@@ -96,27 +96,24 @@ export const uploadFile = async (
 };
 
 /**
- * Get media list from Cloudinary
+ * Get media list from Cloudinary (via secure backend API)
  */
 export const getCloudinaryFiles = async (type?: 'image' | 'video'): Promise<any[]> => {
-    if (!CLOUDINARY_CLOUD_NAME) {
-        throw new Error('Cloudinary cloud name is missing');
-    }
-
     try {
-        // Use Cloudinary's list resources API by tag
-        // Note: The tag must match what we used in upload
         const resourceType = type || 'image';
-        const tag = CLOUDINARY_UPLOAD_PRESET;
-        // Add a timestamp version to bypass CDN caching (Cloudinary caches lists for 1 hour by default)
-        const version = Math.round(new Date().getTime() / 1000);
-        const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/${resourceType}/list/v${version}/${tag}.json`;
+        // We want all images, so we don't pass a specific tag
+        // const tag = CLOUDINARY_UPLOAD_PRESET; 
+
+        // Call our own API route which uses the Admin API securely
+        // Note: In development with 'vercel dev', this routes to api/cloudinary.js
+        // In production, it routes to the serverless function
+        const url = `/api/cloudinary?type=${resourceType}`; // removed &tag=${tag}
+        console.log(`Fetching from API: ${url}`);
 
         const response = await axios.get(url);
         return response.data.resources || [];
     } catch (error) {
-        console.error('Error fetching media list:', error);
-        // If list API doesn't work, return empty array
+        console.error('Error fetching media list from API:', error);
         return [];
     }
 };
