@@ -1,0 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Nunito:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Darker warm background - soft tan/taupe */
+    --background: 30 25% 88%;
+    --foreground: 30 40% 15%;
+
+    /* Warmer card tones */
+    --card: 30 30% 92%;
+    --card-foreground: 30 40% 15%;
+
+    --popover: 30 30% 94%;
+    --popover-foreground: 30 40% 15%;
+
+    /* Rich warm orange/amber primary */
+    --primary: 25 85% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Soft sage green secondary for balance */
+    --secondary: 145 30% 70%;
+    --secondary-foreground: 145 40% 15%;
+
+    /* Warm muted tones */
+    --muted: 30 20% 80%;
+    --muted-foreground: 30 25% 35%;
+
+    /* Peachy accent */
+    --accent: 15 75% 65%;
+    --accent-foreground: 15 60% 15%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Warm borders */
+    --border: 30 30% 75%;
+    --input: 30 30% 75%;
+    --ring: 25 85% 55%;
+
+    --radius: 1rem;
+
+    /* Enhanced warm gradients */
+    --gradient-warm: linear-gradient(135deg, hsl(25 85% 55%) 0%, hsl(15 75% 60%) 100%);
+    --gradient-soft: linear-gradient(180deg, hsl(30 25% 88%) 0%, hsl(30 30% 85%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(25 70% 80% / 0.9) 0%, hsl(35 60% 85% / 0.7) 100%);
+    --gradient-header: linear-gradient(90deg, hsl(25 85% 55%) 0%, hsl(15 75% 60%) 50%, hsl(25 85% 55%) 100%);
+
+    /* Softer, warmer shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(25 50% 40% / 0.2);
+    --shadow-glow: 0 0 40px hsl(25 85% 55% / 0.3);
+    --shadow-card: 0 8px 30px -8px hsl(30 40% 30% / 0.15);
+
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Nunito', sans-serif;
+
+    --sidebar-background: 30 25% 86%;
+    --sidebar-foreground: 30 40% 15%;
+    --sidebar-primary: 25 85% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 30 30% 82%;
+    --sidebar-accent-foreground: 30 40% 15%;
+    --sidebar-border: 30 30% 75%;
+    --sidebar-ring: 25 85% 55%;
+  }
+
+  .dark {
+    --background: 30 30% 12%;
+    --foreground: 35 30% 90%;
+
+    --card: 30 30% 16%;
+    --card-foreground: 35 30% 90%;
+
+    --popover: 30 30% 14%;
+    --popover-foreground: 35 30% 90%;
+
+    --primary: 25 80% 60%;
+    --primary-foreground: 30 30% 12%;
+
+    --secondary: 145 25% 35%;
+    --secondary-foreground: 145 30% 85%;
+
+    --muted: 30 25% 22%;
+    --muted-foreground: 35 20% 55%;
+
+    --accent: 15 70% 50%;
+    --accent-foreground: 15 30% 95%;
+
+    --destructive: 0 70% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 25% 24%;
+    --input: 30 25% 24%;
+    --ring: 25 80% 60%;
+
+    --sidebar-background: 30 30% 14%;
+    --sidebar-foreground: 35 30% 90%;
+    --sidebar-primary: 25 80% 60%;
+    --sidebar-primary-foreground: 30 30% 12%;
+    --sidebar-accent: 30 25% 20%;
+    --sidebar-accent-foreground: 35 30% 90%;
+    --sidebar-border: 30 25% 24%;
+    --sidebar-ring: 25 80% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer components {
+  .btn-warm {
+    @apply bg-primary text-primary-foreground px-6 py-3 rounded-full font-semibold transition-all duration-300;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .btn-warm:hover {
+    @apply scale-105;
+    box-shadow: var(--shadow-glow);
+  }
+
+  .card-memory {
+    @apply bg-card rounded-2xl overflow-hidden transition-all duration-300;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-memory:hover {
+    @apply scale-[1.02];
+    box-shadow: var(--shadow-glow);
+  }
+
+  .text-gradient {
+    background: var(--gradient-warm);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-colorful {
+    background: linear-gradient(90deg,
+        hsl(320, 100%, 60%) 0%,
+        hsl(280, 100%, 60%) 20%,
+        hsl(200, 100%, 60%) 40%,
+        hsl(160, 100%, 50%) 60%,
+        hsl(60, 100%, 50%) 80%,
+        hsl(30, 100%, 60%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-warm {
+    background: linear-gradient(135deg,
+        hsl(25, 95%, 55%) 0%,
+        hsl(15, 90%, 60%) 35%,
+        hsl(10, 85%, 65%) 70%,
+        hsl(25, 95%, 55%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-gradient {
+    background: var(--gradient-header);
+    background-size: 200% 100%;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Rainbow LED animation for text */
+  @keyframes rainbow {
+    0% {
+      color: hsl(0, 100%, 60%);
+    }
+
+    14% {
+      color: hsl(30, 100%, 60%);
+    }
+
+    28% {
+      color: hsl(60, 100%, 60%);
+    }
+
+    42% {
+      color: hsl(120, 100%, 60%);
+    }
+
+    57% {
+      color: hsl(180, 100%, 60%);
+    }
+
+    71% {
+      color: hsl(240, 100%, 60%);
+    }
+
+    85% {
+      color: hsl(300, 100%, 60%);
+    }
+
+    100% {
+      color: hsl(360, 100%, 60%);
+    }
+  }
+
+  .rainbow-text {
+    animation: rainbow 3s linear infinite;
+  }
+}
