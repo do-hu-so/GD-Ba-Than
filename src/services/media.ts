@@ -1,4 +1,4 @@
-import { uploadFile, downloadFile, MediaMetadata } from './storage';
+import { uploadFile, downloadFile, MediaMetadata, getCloudinaryFiles, getCloudinaryUrl } from './storage';
 
 export interface MediaItem {
   id: string;
@@ -236,3 +236,72 @@ export const setUserLike = (mediaId: string, liked: boolean): void => {
     console.error('Error setting user like:', error);
   }
 };
+
+/**
+ * Sync media with Cloudinary
+ * Fetches latest list from Cloudinary and merges with local store
+ */
+export const syncWithCloudinary = async () => {
+  console.log('Syncing with Cloudinary...');
+  try {
+    const [images, videos] = await Promise.all([
+      getCloudinaryFiles('image'),
+      getCloudinaryFiles('video')
+    ]);
+
+    const allResources = [...(images || []), ...(videos || [])];
+    console.log(`Found ${allResources.length} resources from Cloudinary`);
+
+    if (allResources.length === 0) return;
+
+    let hasChanges = false;
+    const newItems: MediaItem[] = [];
+
+    allResources.forEach(res => {
+      // Check if exists
+      const exists = mediaStore.some(item => item.id === res.public_id);
+
+      if (!exists) {
+        // Parse context/metadata
+        const context = res.context?.custom || {};
+        const title = context.title || "Gia đình";
+        const year = parseInt(context.year) || new Date(res.created_at).getFullYear();
+
+        // Create new item
+        const newItem: MediaItem = {
+          id: res.public_id,
+          type: res.format === 'mp4' || res.format === 'mov' || res.resource_type === 'video' ? 'video' : 'image',
+          src: getCloudinaryUrl(res.public_id, res.resource_type, res.version),
+          // For videos, try to guess thumbnail (Cloudinary specific)
+          thumbnail: res.resource_type === 'video'
+            ? getCloudinaryUrl(res.public_id, 'video', res.version).replace(/\.[^/.]+$/, ".jpg")
+            : getCloudinaryUrl(res.public_id, 'image', res.version),
+          title: title,
+          year: year,
+          description: context.description || '',
+          uploadedBy: context.uploadedBy || 'Cloud',
+          createdAt: res.created_at,
+          fileSize: res.bytes,
+          mimeType: res.format ? `${res.resource_type}/${res.format}` : undefined,
+          likes: 0
+        };
+
+        newItems.push(newItem);
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges) {
+      console.log(`Adding ${newItems.length} new items from Cloudinary`);
+      mediaStore = [...mediaStore, ...newItems].sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      saveToLocalStorage();
+    }
+  } catch (error) {
+    console.error('Failed to sync with Cloudinary:', error);
+  }
+};
+
+// Start sync on load
+syncWithCloudinary();

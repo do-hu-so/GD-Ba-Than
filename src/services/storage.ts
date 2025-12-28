@@ -46,7 +46,8 @@ export const uploadFile = async (
     // Add tags for filtering
     const tags = [
         `year_${metadata.year}`,
-        file.type.startsWith('video/') ? 'video' : 'image'
+        file.type.startsWith('video/') ? 'video' : 'image',
+        CLOUDINARY_UPLOAD_PRESET // Add preset name as tag for easier filtering
     ];
     formData.append('tags', tags.join(','));
 
@@ -97,24 +98,35 @@ export const uploadFile = async (
 /**
  * Get media list from Cloudinary
  */
-export const getMediaList = async (type?: 'image' | 'video'): Promise<any[]> => {
+export const getCloudinaryFiles = async (type?: 'image' | 'video'): Promise<any[]> => {
     if (!CLOUDINARY_CLOUD_NAME) {
         throw new Error('Cloudinary cloud name is missing');
     }
 
     try {
-        // Use Cloudinary's list resources API
+        // Use Cloudinary's list resources API by tag
+        // Note: The tag must match what we used in upload
         const resourceType = type || 'image';
-        const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/${resourceType}/list/${CLOUDINARY_UPLOAD_PRESET}.json`;
+        const tag = CLOUDINARY_UPLOAD_PRESET;
+        // Add a timestamp version to bypass CDN caching (Cloudinary caches lists for 1 hour by default)
+        const version = Math.round(new Date().getTime() / 1000);
+        const url = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/${resourceType}/list/v${version}/${tag}.json`;
 
         const response = await axios.get(url);
         return response.data.resources || [];
     } catch (error) {
         console.error('Error fetching media list:', error);
         // If list API doesn't work, return empty array
-        // In production, you'd use Cloudinary Admin API (requires backend)
         return [];
     }
+};
+
+/**
+ * Construct Cloudinary URL
+ */
+export const getCloudinaryUrl = (publicId: string, resourceType: 'image' | 'video', version?: number): string => {
+    const ver = version ? `v${version}/` : '';
+    return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload/${ver}${publicId}`;
 };
 
 /**
