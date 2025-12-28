@@ -123,9 +123,27 @@ export const getMediaByYear = (year: number, type?: 'image' | 'video'): MediaIte
  */
 export const downloadMedia = async (media: MediaItem): Promise<void> => {
   try {
-    const extension = media.mimeType?.split('/')[1] || (media.type === 'video' ? 'mp4' : 'jpg');
-    const filename = `${media.title}_${media.year}.${extension}`;
-    await downloadFile(media.src, filename);
+    // Check if it's a Cloudinary URL
+    if (media.src.includes('cloudinary.com')) {
+      // Inject fl_attachment flag to force download
+      // Cloudinary URL format: .../upload/v12345/...
+      // Target format: .../upload/fl_attachment/v12345/...
+      const downloadUrl = media.src.replace('/upload/', '/upload/fl_attachment/');
+
+      // Create a temporary link and click it
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', ''); // Hint to browser
+      // Removed target='_blank' to avoid opening new window
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      // Fallback for non-Cloudinary URLs
+      const extension = media.mimeType?.split('/')[1] || (media.type === 'video' ? 'mp4' : 'jpg');
+      const filename = `${media.title}_${media.year}.${extension}`;
+      await downloadFile(media.src, filename);
+    }
   } catch (error) {
     console.error('Error downloading media:', error);
     throw error;

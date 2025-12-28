@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Pencil, Check, X, Trash2 } from "lucide-react";
-import { useUpdateMedia, useDeleteMedia } from "../hooks/useMedia";
+import { useUpdateMedia, useDeleteMedia, useDownloadMedia } from "../hooks/useMedia";
 import { useToast } from "@/hooks/use-toast";
 
 interface MediaModalProps {
@@ -17,6 +17,7 @@ interface MediaModalProps {
 const MediaModal = ({ isOpen, onClose, type, src, title: initialTitle, year, id }: MediaModalProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(initialTitle);
+  const { mutate: downloadMedia } = useDownloadMedia();
   const { mutate: updateMedia } = useUpdateMedia();
   const { mutate: deleteMedia } = useDeleteMedia();
   const { toast } = useToast();
@@ -40,12 +41,7 @@ const MediaModal = ({ isOpen, onClose, type, src, title: initialTitle, year, id 
   }, [isOpen, onClose]);
 
   const handleDownload = () => {
-    const link = document.createElement("a");
-    link.href = src;
-    link.download = `${title}-${year}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    downloadMedia({ id, type, src, title, year } as any);
   };
 
   const handleDelete = () => {
