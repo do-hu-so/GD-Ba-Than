@@ -18,20 +18,30 @@ export default async function handler(req, res) {
     try {
         const { type, tag } = req.query;
         const resourceType = type || 'image';
-        const searchTag = tag || process.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
-        // Use Search API for more flexibility (supports tags, types, sorting)
-        // OR use Admin API resources_by_tag
+        let result;
 
-        console.log(`Fetching ${resourceType}s with tag: ${searchTag}`);
-
-        const result = await cloudinary.api.resources_by_tag(searchTag, {
-            resource_type: resourceType,
-            max_results: 100,
-            context: true, // Get metadata (title, year)
-            tags: true,
-            direction: 'desc' // Newest first
-        });
+        // If tag is provided and is a valid string, user matches tag
+        if (tag && tag !== 'undefined' && tag !== 'null') {
+            console.log(`Fetching ${resourceType}s with tag: ${tag}`);
+            result = await cloudinary.api.resources_by_tag(tag, {
+                resource_type: resourceType,
+                max_results: 100,
+                context: true,
+                tags: true,
+                direction: 'desc'
+            });
+        } else {
+            // Otherwise fetch ALL resources
+            console.log(`Fetching ALL ${resourceType}s (no tag filter)`);
+            result = await cloudinary.api.resources({
+                resource_type: resourceType,
+                max_results: 100,
+                context: true,
+                tags: true,
+                direction: 'desc'
+            });
+        }
 
         return res.status(200).json(result);
     } catch (error) {
